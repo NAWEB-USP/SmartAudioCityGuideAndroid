@@ -2,6 +2,8 @@ package naweb.wonders.smartaudiocityguide;
 
 import android.location.Location;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -19,11 +21,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends FragmentActivity implements LocationListener,
-		ConnectionCallbacks, OnConnectionFailedListener {
+		ConnectionCallbacks, OnConnectionFailedListener, OnInitListener {
 
 	private GoogleMap googleMap = null;
 	private LocationClient locationClient;
 	private Marker userMarker = null;
+
+	private TextToSpeech textToSpeech;
+
+	private Boolean ready = false;
 
 	private static final LocationRequest LOCATION_REQUEST = LocationRequest
 			.create().setInterval(2000) // 2 seconds
@@ -33,6 +39,8 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		textToSpeech = new TextToSpeech(this, this);
 
 		locationClient = new LocationClient(this, this, this);
 
@@ -61,6 +69,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
 	@Override
 	public void onLocationChanged(Location location) {
+		if (ready == false) {
+			ready = true;
+			textToSpeech.speak("pronto", TextToSpeech.QUEUE_ADD, null);
+		}
+
 		LatLng latLng = new LatLng(location.getLatitude(),
 				location.getLongitude());
 
@@ -83,6 +96,11 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	@Override
 	public void onDisconnected() {
 		// TODO Auto-generated method stub
+	}
 
+	@Override
+	public void onInit(int arg0) {
+		textToSpeech.speak("Smart Audio City Guide", TextToSpeech.QUEUE_ADD,
+				null);
 	}
 }
