@@ -41,8 +41,8 @@
                 android:layout_marginTop="7dp"
                 android:background="#3D6DB1"
                 android:contentDescription="Rota"
+                android:onClick="routeButton_OnClick"
                 android:src="@drawable/cursor_large" />
-
         </FrameLayout>
 
         <FrameLayout
@@ -68,8 +68,9 @@
                 android:layout_marginRight="7dp"
                 android:layout_weight=".5"
                 android:background="#8CC63F"
-                android:src="@drawable/world_large"
-                android:contentDescription="Mundo" />
+                android:contentDescription="Mundo"
+                android:onClick="worldButton_OnClick"
+                android:src="@drawable/world_large" />
 
             <ImageButton
                 android:id="@+id/button3"
@@ -81,9 +82,9 @@
                 android:layout_marginRight="7dp"
                 android:layout_weight=".5"
                 android:background="#C1272D"
-                android:src="@drawable/sound_large"
-                android:contentDescription="Som" />
-
+                android:contentDescription="Som"
+                android:onClick="soundButton_OnClick"
+                android:src="@drawable/sound_large" />
         </LinearLayout>
     </LinearLayout>
 

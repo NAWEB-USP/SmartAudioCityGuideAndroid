@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
@@ -102,5 +103,17 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	public void onInit(int arg0) {
 		textToSpeech.speak("Smart Audio City Guide", TextToSpeech.QUEUE_ADD,
 				null);
+	}
+
+	public void routeButton_OnClick(View view) {
+		textToSpeech.speak("Você escolheu rota", TextToSpeech.QUEUE_ADD, null);
+	}
+
+	public void worldButton_OnClick(View view) {
+		textToSpeech.speak("Você escolheu mundo", TextToSpeech.QUEUE_ADD, null);
+	}
+
+	public void soundButton_OnClick(View view) {
+		textToSpeech.speak("Você escolheu som", TextToSpeech.QUEUE_ADD, null);
 	}
 }
