@@ -33,7 +33,7 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 	private Boolean ready = false;
 
 	private static final LocationRequest LOCATION_REQUEST = LocationRequest
-			.create().setInterval(2000) // 2 seconds
+			.create().setInterval(1000) // 2 seconds
 			.setFastestInterval(16) // 16ms = 60fps
 			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
@@ -46,6 +46,10 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 		locationClient = new LocationClient(this, this, this);
 
 		setContentView(R.layout.activity_main);
+
+		// Intent intent = new Intent(this, BackgroundService.class);
+		// intent.putExtra("locationClient", locationClient);
+		// startService(intent);
 	}
 
 	@Override

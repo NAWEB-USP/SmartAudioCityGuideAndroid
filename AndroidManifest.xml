@@ -44,6 +44,10 @@
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
             android:value="AIzaSyChGnidjLFXcAaxSuP5YQu_shHwyVLLZy8" />
+        
+        <service
+            android:name=".BackgroundService"
+            android:exported="false" />
     </application>
 
 </manifest>

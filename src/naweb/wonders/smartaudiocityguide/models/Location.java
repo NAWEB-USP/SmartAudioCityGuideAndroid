@@ -58,4 +58,41 @@ public class Location {
 
 		return locations;
 	}
+
+	public double distanceTo(double latitude, double longitude) {
+		double result = Math.pow(this.latitude - latitude, 2)
+				+ Math.pow(this.longitude - longitude, 2);
+
+		result = Math.sqrt(result);
+
+		return result;
+	}
+
+	public double distanceTo(Location location) {
+		return distanceTo(location.getLatitude(), location.getLongitude());
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public double getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(double latitude) {
+		this.latitude = latitude;
+	}
+
+	public double getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(double longitude) {
+		this.longitude = longitude;
+	}
 }
