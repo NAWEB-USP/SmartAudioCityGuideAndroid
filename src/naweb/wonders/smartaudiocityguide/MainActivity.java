@@ -1,18 +1,16 @@
 package naweb.wonders.smartaudiocityguide;
 
-import android.location.Location;
+import naweb.wonders.smartaudiocityguide.services.BackgroundService;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient.ConnectionCallbacks;
-import com.google.android.gms.common.GooglePlayServicesClient.OnConnectionFailedListener;
-import com.google.android.gms.location.LocationClient;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -21,21 +19,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements LocationListener,
-		ConnectionCallbacks, OnConnectionFailedListener, OnInitListener {
+public class MainActivity extends FragmentActivity implements OnInitListener {
 
 	private GoogleMap googleMap = null;
-	private LocationClient locationClient;
 	private Marker userMarker = null;
 
 	private TextToSpeech textToSpeech;
 
-	private Boolean ready = false;
-
-	private static final LocationRequest LOCATION_REQUEST = LocationRequest
-			.create().setInterval(1000) // 2 seconds
-			.setFastestInterval(16) // 16ms = 60fps
-			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+	private BackgroundServiceReceiver backgroundServiceReceiver = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,18 +34,21 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
 		textToSpeech = new TextToSpeech(this, this);
 
-		locationClient = new LocationClient(this, this, this);
+		Intent intent = new Intent(this, BackgroundService.class);
+		startService(intent);
 
 		setContentView(R.layout.activity_main);
-
-		// Intent intent = new Intent(this, BackgroundService.class);
-		// intent.putExtra("locationClient", locationClient);
-		// startService(intent);
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
+
+		IntentFilter intentFilter = new IntentFilter(
+				BackgroundServiceReceiver.PROCESS_RESPONSE);
+		intentFilter.addCategory(Intent.CATEGORY_DEFAULT);
+		backgroundServiceReceiver = new BackgroundServiceReceiver();
+		registerReceiver(backgroundServiceReceiver, intentFilter);
 
 		if (googleMap == null) {
 			googleMap = ((SupportMapFragment) getSupportFragmentManager()
@@ -68,39 +62,12 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 							.icon(BitmapDescriptorFactory
 									.defaultMarker(BitmapDescriptorFactory.HUE_ORANGE)));
 		}
-
-		locationClient.connect();
 	}
 
-	@Override
-	public void onLocationChanged(Location location) {
-		if (ready == false) {
-			ready = true;
-			textToSpeech.speak("pronto", TextToSpeech.QUEUE_ADD, null);
-		}
-
-		LatLng latLng = new LatLng(location.getLatitude(),
-				location.getLongitude());
-
+	public void changeUserPosition(LatLng latLng) {
 		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
 
 		userMarker.setPosition(latLng);
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onConnected(Bundle arg0) {
-		locationClient.requestLocationUpdates(LOCATION_REQUEST, this);
-	}
-
-	@Override
-	public void onDisconnected() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
@@ -119,5 +86,16 @@ public class MainActivity extends FragmentActivity implements LocationListener,
 
 	public void soundButton_OnClick(View view) {
 		textToSpeech.speak("Você escolheu som", TextToSpeech.QUEUE_ADD, null);
+	}
+
+	public class BackgroundServiceReceiver extends BroadcastReceiver {
+		public static final String PROCESS_RESPONSE = "BackgroundServiceReceiver.PROCESS_RESPONSE";
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			LatLng latLng = intent.getParcelableExtra("LatLng");
+
+			changeUserPosition(latLng);
+		}
 	}
 }
