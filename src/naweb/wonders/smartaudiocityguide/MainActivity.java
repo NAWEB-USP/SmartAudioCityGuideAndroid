@@ -64,16 +64,23 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 		}
 	}
 
-	public void changeUserPosition(LatLng latLng) {
-		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-
-		userMarker.setPosition(latLng);
-	}
-
 	@Override
 	public void onInit(int arg0) {
 		textToSpeech.speak("Smart Audio City Guide", TextToSpeech.QUEUE_ADD,
 				null);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		stopService(new Intent(this, BackgroundService.class));
+	}
+
+	public void changeUserPosition(LatLng latLng) {
+		googleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+
+		userMarker.setPosition(latLng);
 	}
 
 	public void routeButton_OnClick(View view) {
