@@ -13,17 +13,53 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.PropertyInfo;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
 
 public class WebServer {
 	private static String baseUrl = "http://smartaudiocityguide.azurewebsites.net/";
-	private static String endPoint = "http://smartaudiocityguide.azurewebsites.net/WebServices.asmx";
+	private static String soapAddress = "http://smartaudiocityguide.azurewebsites.net/WebServices.asmx";
+	private static String namespace = "http://tempuri.org/";
+	private static String code = "wonders";
 
-	public static String getBaseUrl() {
-		return baseUrl;
-	}
+	public byte[] requestSoundCommentFromLocation(Location location) {
+		String action = "getSoundCommentFromLocation";
 
-	public static String getEndPoint() {
-		return endPoint;
+		SoapObject soapObject = new SoapObject(namespace, action);
+
+		PropertyInfo propertyInfo = new PropertyInfo();
+		propertyInfo.setName("idLocation");
+		propertyInfo.setValue(location.getId());
+		propertyInfo.setType(String.class);
+		soapObject.addProperty(propertyInfo);
+
+		propertyInfo = new PropertyInfo();
+		propertyInfo.setName("code");
+		propertyInfo.setValue(code);
+		propertyInfo.setType(String.class);
+		soapObject.addProperty(propertyInfo);
+
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+				SoapEnvelope.VER11);
+		envelope.dotNet = true;
+		envelope.setOutputSoapObject(soapObject);
+
+		HttpTransportSE httpTransport = new HttpTransportSE(soapAddress);
+
+		try {
+			httpTransport.call(namespace + action, envelope);
+			SoapPrimitive result = (SoapPrimitive) envelope.getResponse();
+
+			String json = result.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return null;
 	}
 
 	public List<Location> requestLocationsAround(Location location) {
@@ -40,7 +76,7 @@ public class WebServer {
 
 		String url = baseUrl + "LocationsWebServices/searchLocations?location="
 				+ locationValue + "&radius=2&windowsPhoneId=" + "12345"
-				+ "&code=wonders";
+				+ "&code=" + code;
 
 		String json = makeRequest(url);
 
@@ -72,12 +108,6 @@ public class WebServer {
 	}
 
 	private static String convertStreamToString(InputStream is) {
-		/*
-		 * To convert the InputStream to String we use the
-		 * BufferedReader.readLine() method. We iterate until the BufferedReader
-		 * return null which means there's no more data to read. Each line will
-		 * appended to a StringBuilder and returned as String.
-		 */
 		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 		StringBuilder sb = new StringBuilder();
 
@@ -95,6 +125,7 @@ public class WebServer {
 				e.printStackTrace();
 			}
 		}
+
 		return sb.toString();
 	}
 }

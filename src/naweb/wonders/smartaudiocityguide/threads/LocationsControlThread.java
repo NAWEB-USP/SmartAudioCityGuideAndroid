@@ -21,26 +21,32 @@ public class LocationsControlThread extends Thread {
 		while (true) {
 			List<Location> locations = getLocationsAround();
 
-			for (Location location : locations) {
-				LocationThread thread = hashtable.get(location.getId());
+			if (locations != null) {
+				for (Location location : locations) {
+					LocationThread thread = hashtable.get(location.getId());
 
-				if (thread == null) {
-					thread = new LocationThread(locationClient, location);
+					if (thread == null) {
+						thread = new LocationThread(locationClient, location);
 
-					hashtable.put(location.getId(), thread);
+						hashtable.put(location.getId(), thread);
 
-					thread.start();
+						thread.start();
 
-					continue;
-				}
+						continue;
+					}
 
-				if (thread.isAlive() == false) {
-					thread.start();
+					if (thread.isAlive() == false) {
+						thread.start();
+					}
 				}
 			}
 
 			try {
-				Thread.sleep(60000);
+				int sleepTime = 30000;
+				if (locations != null)
+					sleepTime = 600000;
+
+				Thread.sleep(sleepTime);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -51,8 +57,14 @@ public class LocationsControlThread extends Thread {
 		if (locationClient.isConnected() == false)
 			return null;
 
-		Location location = new Location(locationClient.getLastLocation()
-				.getLatitude(), locationClient.getLastLocation().getLongitude());
+		Location location;
+		try {
+			location = new Location(locationClient.getLastLocation()
+					.getLatitude(), locationClient.getLastLocation()
+					.getLongitude());
+		} catch (Exception e) {
+			return null;
+		}
 
 		WebServer webServer = new WebServer();
 

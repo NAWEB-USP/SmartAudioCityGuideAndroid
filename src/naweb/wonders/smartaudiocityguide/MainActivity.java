@@ -1,25 +1,34 @@
 package naweb.wonders.smartaudiocityguide;
 
+import java.io.File;
+
 import naweb.wonders.smartaudiocityguide.services.BackgroundService;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnPreparedListener;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.FragmentActivity;
 import android.view.View;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-public class MainActivity extends FragmentActivity implements OnInitListener {
+public class MainActivity extends FragmentActivity implements OnInitListener,
+		OnPreparedListener {
 
 	private GoogleMap googleMap = null;
 	private Marker userMarker = null;
@@ -28,9 +37,15 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 
 	private BackgroundServiceReceiver backgroundServiceReceiver = null;
 
+	private MediaRecorder mediaRecorder;
+	private String recordedAudioPath;
+	private Boolean isRecording = false;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
+		createFolder();
 
 		textToSpeech = new TextToSpeech(this, this);
 
@@ -38,6 +53,18 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 		startService(intent);
 
 		setContentView(R.layout.activity_main);
+	}
+
+	private void createFolder() {
+		String path = Environment.getExternalStorageDirectory().getPath()
+				+ "/SACG/Sounds";
+
+		File directory = new File(path);
+		Boolean i = directory.mkdirs();
+
+		i.getClass();
+
+		recordedAudioPath = path + "/newAudioRecord.3gp";
 	}
 
 	@Override
@@ -53,6 +80,12 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 		if (googleMap == null) {
 			googleMap = ((SupportMapFragment) getSupportFragmentManager()
 					.findFragmentById(R.id.map)).getMap();
+		}
+
+		try {
+			MapsInitializer.initialize(getApplicationContext());
+		} catch (GooglePlayServicesNotAvailableException e) {
+			return;
 		}
 
 		if (userMarker == null) {
@@ -84,7 +117,16 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 	}
 
 	public void routeButton_OnClick(View view) {
-		textToSpeech.speak("Você escolheu rota", TextToSpeech.QUEUE_ADD, null);
+		if (!isRecording) {
+			startAudioRecording();
+
+			isRecording = true;
+		} else {
+			stopAudioRecording();
+			playAudioRecord();
+
+			isRecording = false;
+		}
 	}
 
 	public void worldButton_OnClick(View view) {
@@ -93,6 +135,44 @@ public class MainActivity extends FragmentActivity implements OnInitListener {
 
 	public void soundButton_OnClick(View view) {
 		textToSpeech.speak("Você escolheu som", TextToSpeech.QUEUE_ADD, null);
+	}
+
+	private void startAudioRecording() {
+		mediaRecorder = new MediaRecorder();
+		mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+		mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+		mediaRecorder.setOutputFile(recordedAudioPath);
+		mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+
+		try {
+			mediaRecorder.prepare();
+		} catch (Exception e) {
+			return;
+		}
+
+		mediaRecorder.start();
+	}
+
+	private void stopAudioRecording() {
+		mediaRecorder.stop();
+		mediaRecorder.release();
+	}
+
+	private void playAudioRecord() {
+		MediaPlayer mediaPlayer = new MediaPlayer();
+		mediaPlayer.setOnPreparedListener(this);
+
+		try {
+			mediaPlayer.setDataSource(recordedAudioPath);
+			mediaPlayer.prepare();
+		} catch (Exception e) {
+			return;
+		}
+	}
+
+	@Override
+	public void onPrepared(MediaPlayer mediaPlayer) {
+		mediaPlayer.start();
 	}
 
 	public class BackgroundServiceReceiver extends BroadcastReceiver {
