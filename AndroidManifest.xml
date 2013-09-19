@@ -46,7 +46,7 @@
 
         <meta-data
             android:name="com.google.android.maps.v2.API_KEY"
-            android:value="AIzaSyChGnidjLFXcAaxSuP5YQu_shHwyVLLZy8" />
+            android:value="AIzaSyDmsWyhRXIUc4J9a0aXW4UN58n7hoWbMP8" />
 
         <service
             android:name=".services.BackgroundService" />

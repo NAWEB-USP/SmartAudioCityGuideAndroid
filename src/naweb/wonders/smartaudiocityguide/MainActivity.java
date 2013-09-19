@@ -41,6 +41,8 @@ public class MainActivity extends FragmentActivity implements OnInitListener,
 	private String recordedAudioPath;
 	private Boolean isRecording = false;
 
+	private Intent serviceIntent;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -49,8 +51,8 @@ public class MainActivity extends FragmentActivity implements OnInitListener,
 
 		textToSpeech = new TextToSpeech(this, this);
 
-		Intent intent = new Intent(this, BackgroundService.class);
-		startService(intent);
+		serviceIntent = new Intent(this, BackgroundService.class);
+		startService(serviceIntent);
 
 		setContentView(R.layout.activity_main);
 	}
@@ -107,7 +109,7 @@ public class MainActivity extends FragmentActivity implements OnInitListener,
 	protected void onDestroy() {
 		super.onDestroy();
 
-		stopService(new Intent(this, BackgroundService.class));
+		stopService(serviceIntent);
 	}
 
 	public void changeUserPosition(LatLng latLng) {

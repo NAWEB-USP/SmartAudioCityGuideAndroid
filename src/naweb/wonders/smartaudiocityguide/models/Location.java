@@ -95,4 +95,35 @@ public class Location {
 	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
+
+	public double distanceToInMeters(double latitude, double longitude) {
+		return distanceToInMeters(new Location(latitude, longitude));
+	}
+
+	public double distanceToInMeters(Location location) {
+		double theta = longitude - location.getLongitude();
+
+		double distance = Math.sin(deg2rad(latitude))
+				* Math.sin(deg2rad(location.getLatitude()))
+				+ Math.cos(deg2rad(latitude))
+				* Math.cos(deg2rad(location.getLatitude()))
+				* Math.cos(deg2rad(theta));
+
+		distance = Math.acos(distance);
+
+		distance = rad2deg(distance);
+
+		distance = distance * 60 * 1.1515 * 1.609344 * 1000;
+
+		return distance;
+
+	}
+
+	private double deg2rad(double deg) {
+		return (deg * Math.PI / 180.0);
+	}
+
+	private double rad2deg(double rad) {
+		return (rad * 180 / Math.PI);
+	}
 }

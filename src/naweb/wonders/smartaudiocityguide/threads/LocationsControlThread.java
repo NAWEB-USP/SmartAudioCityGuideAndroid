@@ -42,7 +42,7 @@ public class LocationsControlThread extends Thread {
 			}
 
 			try {
-				int sleepTime = 30000;
+				int sleepTime = 1000;
 				if (locations != null)
 					sleepTime = 600000;
 

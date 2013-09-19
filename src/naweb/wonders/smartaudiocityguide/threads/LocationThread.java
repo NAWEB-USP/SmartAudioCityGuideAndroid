@@ -8,6 +8,7 @@ import com.google.android.gms.location.LocationClient;
 public class LocationThread extends Thread {
 	private LocationClient locationClient;
 	private Location location;
+
 	private WebServer webServer;
 
 	public LocationThread(LocationClient locationClient, Location location) {
@@ -18,18 +19,18 @@ public class LocationThread extends Thread {
 	}
 
 	public void run() {
-		// while (true) {
-		// while (locationClient.isConnected() == false) {
-		// try {
-		// Thread.sleep(5000);
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		//
-		// double distance = location.distanceTo(locationClient
-		// .getLastLocation().getLatitude(), locationClient
-		// .getLastLocation().getLongitude());
-		// }
+		while (true) {
+			while (locationClient.isConnected() == false) {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+
+			double distance = location.distanceToInMeters(locationClient
+					.getLastLocation().getLatitude(), locationClient
+					.getLastLocation().getLongitude());
+		}
 	}
 }

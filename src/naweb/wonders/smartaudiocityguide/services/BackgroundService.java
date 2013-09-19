@@ -26,6 +26,8 @@ public class BackgroundService extends IntentService implements
 			.setFastestInterval(16) // 16ms = 60fps
 			.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+	LocationsControlThread locationsControlThread;
+
 	public BackgroundService(String name) {
 		super(name);
 	}
@@ -54,15 +56,12 @@ public class BackgroundService extends IntentService implements
 	public void onConnected(Bundle arg0) {
 		locationClient.requestLocationUpdates(LOCATION_REQUEST, this);
 
-		LocationsControlThread locationsControlThread = new LocationsControlThread(
-				locationClient);
+		locationsControlThread = new LocationsControlThread(locationClient);
 		locationsControlThread.start();
 	}
 
 	@Override
 	public void onDisconnected() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
